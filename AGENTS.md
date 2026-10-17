@@ -3,7 +3,7 @@
 ## Repositorio
 Sistema POS para restaurante (almuerzos). Escritorio Windows (Tauri 2), futuro móvil (Capacitor), backend Node.js/Fastify + PostgreSQL (fases futuras).
 
-**Fase actual: 4 completada** — Backend, PostgreSQL, Drizzle ORM, autenticación, autorización, motor de precios y catálogo configurable.
+**Fase actual: 5 completada** — Backend, PostgreSQL, Drizzle ORM, autenticación, autorización, motor de precios, catálogo configurable, mesas, pedidos, platos individuales y comandas.
 
 ## Stack actual (raíz del repositorio)
 - Frontend: Vue 3.5 + TypeScript + Vite
