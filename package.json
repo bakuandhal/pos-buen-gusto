@@ -19,8 +19,11 @@
     "test": "vitest run",
     "test:server": "cd server && npm run test",
     "test:ui": "vitest --ui",
-    "check": "npm run typecheck && npm run lint && npm run format && npm run test",
-    "check:all": "npm run check && npm run build && cd server && npm run check && npm run build"
+    "db:generate": "cd server && npm run db:generate",
+    "db:migrate": "cd server && npm run db:migrate",
+    "bootstrap:admin": "cd server && npm run bootstrap:admin",
+    "check": "npm run typecheck && npm run lint && npm run format && npm run test && npm run typecheck:server && npm run lint:server && npm run test:server",
+    "check:all": "npm run check && npm run build && npm run build:server && cd server && npm run db:generate"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",

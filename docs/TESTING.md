@@ -1,75 +1,69 @@
-# Pruebas, comprobación de tipos, lint y formato — POS Buen Gusto
+# Pruebas — POS Buen Gusto
 
-## Estrategia de calidad
+## Visión general
 
-El proyecto utiliza un enfoque por capas:
+Este documento describe la estrategia de pruebas del proyecto, abarcando frontend y backend.
 
-1. **Comprobación de tipos** (TypeScript estricto + vue-tsc)
-2. **Lint** (ESLint con reglas para TypeScript y Vue)
-3. **Formato** (Prettier)
-4. **Pruebas unitarias** (Vitest)
-5. **Compilación** (Vite para frontend, tsc para backend, Tauri para escritorio)
+## Frontend (Vitest)
 
-## Frontend (Vue + Vite)
+### Configuración
+- Entorno: jsdom
+- Archivos de prueba: `src/**/*.{test,spec}.{ts,tsx,vue}`
+- Comando: `npm run test`
 
-### Comprobación de tipos
+### Pruebas implementadas
+- `src/utils/currency.test.ts` — Formateo y parseo de moneda (9 pruebas)
+- `src/components/WelcomeMessage.test.ts` — Componente de bienvenida (2 pruebas)
+
+## Backend (Vitest)
+
+### Configuración
+- Archivos de prueba: `server/src/**/*.{test,spec}.ts`
+- Setup de variables de entorno: `server/vitest.setup.ts`
+- Comando: `npm run test:server` (desde raíz) o `npm run test` (desde `server/`)
+
+### Pruebas implementadas
+
+| Archivo | Pruebas | Estado |
+|---------|---------|--------|
+| `server/src/health.test.ts` | `GET /health` responde 200 | ✅ |
+| `server/src/tests/auth.test.ts` | Configuración de entorno, hash de contraseñas, `/health`, `/login` (sin DB), `/me` (sin token) | ✅ |
+| `server/src/tests/utils.test.ts` | `generateRefreshToken`, `hashToken` | ✅ |
+
+### Pruebas pendientes (requieren PostgreSQL real)
+
+Las siguientes pruebas requieren una base de datos PostgreSQL disponible y no se ejecutan automáticamente en entornos sin DB:
+
+- Pruebas de integración de autenticación con base de datos real.
+- Pruebas de login correcto / contraseña incorrecta / usuario inexistente.
+- Pruebas de rutas protegidas con y sin autenticación.
+- Pruebas de refresh y revocación de sesiones.
+- Pruebas de prevención de duplicados en bootstrap administrativo.
+
+Para ejecutar pruebas de integración, configurar `TEST_DATABASE_URL` y ejecutar las pruebas correspondientes.
+
+## Calidad de código
+
+| Herramienta | Comando | Propósito |
+|-------------|---------|-----------|
+| ESLint | `npm run lint` / `npm run lint:server` | Análisis estático de código |
+| Prettier | `npm run format` / `npm run format:write` | Formato de código |
+| TypeScript | `npm run typecheck` / `npm run typecheck:server` | Comprobación de tipos estrictos |
+
+### Reglas importantes
+- No añadir pruebas que solo afirmen `true === true`. Cada prueba debe comprobar un comportamiento real.
+- No usar `--force` ni `--legacy-peer-deps` para ocultar conflictos de dependencias.
+- Las pruebas que requieren base de datos real deben identificarse explícitamente como pendientes si no hay DB disponible.
+
+## Comando de verificación completa
+
 ```powershell
-npm run typecheck
-```
-Incluye archivos `.vue`, `.ts`, `.tsx` a través de `vue-tsc --noEmit`.
-
-### ESLint
-```powershell
-npm run lint
-```
-Revisa `src/**/*.{ts,vue}` con reglas de TypeScript, Vue y Prettier (desactivado para evitar conflictos).
-
-### Prettier
-```powershell
-# Comprobar formato
-npm run format
-# Aplicar formato
-npm run format:write
-```
-
-### Pruebas (Vitest)
-```powershell
-npm run test
-```
-Incluye pruebas de utilidades (`src/utils/currency.test.ts`) y componentes Vue (`src/components/WelcomeMessage.test.vue`).
-
-## Backend (Fastify + TypeScript)
-
-Desde la carpeta `server/`:
-```powershell
-cd server
-npm run test        # Vitest: endpoint GET /health
-npm run build       # tsc: compila TypeScript
-npm run lint        # ESLint
-npm run format      # Prettier
-```
-
-Desde la raíz:
-```powershell
-npm run test:server
-npm run build:server
-npm run lint:server
-```
-
-## Conjunto general de verificaciones
-
-Desde la raíz:
-```powershell
-# Ejecutar todas las verificaciones de frontend
-npm run check
-
-# Ejecutar todas las verificaciones (frontend + backend + build)
+# Frontend + Backend + Builds
 npm run check:all
 ```
 
-## Reglas importantes
-
-- No añadir pruebas que solo afirmen `true === true`. Cada prueba debe comprobar un comportamiento real.
-- No usar `--force` ni `--legacy-peer-deps` para ocultar conflictos de dependencias.
-- No actualizar dependencias indiscriminadamente.
-- Los secretos nunca se guardan en el repositorio (ver `.env.example`).
+Este comando ejecuta:
+1. `npm run check` — Tipos, lint, formato y pruebas (frontend + backend).
+2. `npm run build` — Compilación del frontend.
+3. `npm run build:server` — Compilación del backend.
+4. `npm run db:generate` — Generación de migraciones (sin necesidad de DB real).

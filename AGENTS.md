@@ -3,16 +3,17 @@
 ## Repositorio
 Sistema POS para restaurante (almuerzos). Escritorio Windows (Tauri 2), futuro móvil (Capacitor), backend Node.js/Fastify + PostgreSQL (fases futuras).
 
-**Fase actual: 2 completada** — Sistema visual, prototipo interactivo y animaciones GSAP.
+**Fase actual: 3 completada** — Backend, PostgreSQL, Drizzle ORM, autenticación y autorización.
 
 ## Stack actual (raíz del repositorio)
 - Frontend: Vue 3.5 + TypeScript + Vite
 - Escritorio: Tauri 2 (Rust), plugin `@tauri-apps/plugin-opener`
-- Backend: Node.js + TypeScript + Fastify (`server/`)
+- Backend: Node.js + TypeScript + Fastify 5 (`server/`)
+- Base de datos: PostgreSQL + Drizzle ORM + Drizzle Kit (migraciones versionadas)
 - Navegación: Vue Router
 - Estado: Pinia
 - Animaciones: GSAP + GSAP Flip
-- Pruebas: Vitest
+- Pruebas: Vitest (cliente y servidor)
 - Calidad: ESLint, Prettier, EditorConfig
 
 ## Rama y Git
@@ -21,7 +22,7 @@ Sistema POS para restaurante (almuerzos). Escritorio Windows (Tauri 2), futuro m
 - Remote: `https://github.com/bakuandhal/pos-buen-gusto.git` (privado)
 - `.gitignore`: ignora logs, `node_modules`, `dist`, `.env`, `server/dist`, `src-tauri/target/`, `src-tauri/gen/`
 
-## Scripts principales
+## Scripts principales (raíz)
 - `npm run dev` — Vite dev en puerto 1420
 - `npm run dev:server` — Backend Fastify en puerto 3000
 - `npm run build` — `vue-tsc --noEmit && vite build`
@@ -30,14 +31,26 @@ Sistema POS para restaurante (almuerzos). Escritorio Windows (Tauri 2), futuro m
 - `npm run tauri` — CLI de Tauri
 - `npm run typecheck` — Comprobar tipos TS (incluye .vue)
 - `npm run typecheck:server` — Comprobar tipos del servidor
-- `npm run lint` — Ejecutar ESLint
-- `npm run lint:server` — Ejecutar ESLint en el servidor
+- `npm run lint` — Ejecutar ESLint (frontend)
+- `npm run lint:server` — Ejecutar ESLint (servidor)
 - `npm run format` — Comprobar formato Prettier
 - `npm run format:write` — Aplicar formato Prettier
 - `npm run test` — Ejecutar pruebas Vitest (cliente)
 - `npm run test:server` — Ejecutar pruebas Vitest (servidor)
-- `npm run check` — Verificaciones generales (tipo + lint + formato + pruebas)
-- `npm run check:all` — Todas las verificaciones + builds
+- `npm run db:generate` — Generar migraciones Drizzle
+- `npm run db:migrate` — Aplicar migraciones Drizzle
+- `npm run bootstrap:admin` — Crear primer administrador
+- `npm run check` — Verificaciones generales (tipo + lint + formato + pruebas, frontend + backend)
+- `npm run check:all` — Todas las verificaciones + builds + generación de migraciones
+
+## Scripts del servidor (`server/package.json`)
+- `npm run dev` (desde server/) — tsx watch
+- `npm run build` (desde server/) — tsc
+- `npm run start` (desde server/) — node dist/index.js
+- `npm run test` (desde server/) — vitest run
+- `npm run db:generate` (desde server/) — drizzle-kit generate
+- `npm run db:migrate` (desde server/) — drizzle-kit migrate
+- `npm run bootstrap:admin` (desde server/) — tsx scripts/bootstrap-admin.ts
 
 ## TypeScript
 - `strict: true`, `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`
@@ -47,14 +60,16 @@ Sistema POS para restaurante (almuerzos). Escritorio Windows (Tauri 2), futuro m
 ## Estructura actual
 ```
 /src              App.vue, main.ts, components/, composables/, layouts/, router/, stores/, styles/, types/, utils/, views/, vite-env.d.ts
-/server           Backend Fastify (index.ts, health.test.ts, package.json, tsconfig.json, vitest.config.ts)
+/server           Backend Fastify (app.ts, index.ts, config/, db/, modules/, shared/, tests/, utils/, drizzle/, scripts/)
 /src-tauri        Cargo.toml, tauri.conf.json, src/{lib.rs,main.rs}, capabilities/default.json, build.rs, icons/
 vite.config.ts    Puerto fijo 1420, plugin Vue, ignorar src-tauri en watch
 vitest.config.ts  Entorno jsdom, pruebas en src/**/*.{test,spec}.{ts,tsx,vue}
+server/vitest.config.ts  Pruebas del servidor
 tsconfig.json     Strict TS, path alias @/, referencias a tsconfig.node.json
 eslint.config.js  Flat config ESLint (TS + Vue + Prettier + globals)
 .prettierrc       Configuración Prettier
 .editorconfig     Configuración EditorConfig
+.env.example      Variables de entorno (no commitear valores reales)
 ```
 
 ## Reglas de trabajo
@@ -74,7 +89,6 @@ eslint.config.js  Flat config ESLint (TS + Vue + Prettier + globals)
 - Cuando se liste una funcionalidad estable, mergear a `main` (directo o por PR en GitHub).
 
 ## Fases posteriores (no iniciar sin autorización)
-- Fase 3: API, base de datos, autenticación
 - Fase 4: Motor de precios, modalidades y tarifas
 - Fase 5: Mesas, platos, pedidos
 - Fase 6: Cocina, impresión DIG-E200I
@@ -87,3 +101,11 @@ eslint.config.js  Flat config ESLint (TS + Vue + Prettier + globals)
 - `docs/ANIMATION_GUIDELINES.md` — Reglas de movimiento, GSAP Flip, ciclo de vida de modales
 - `docs/UI_COMPONENTS.md` — Componentes implementados, propiedades y responsabilidades
 - `docs/PHASE_2_REPORT.md` — Alcance ejecutado, verificaciones, limitaciones y pendientes
+
+## Documentación de Fase 3
+- `docs/DATABASE_SETUP.md` — Configuración de PostgreSQL, Drizzle ORM, migraciones
+- `docs/API.md` — Endpoints de la API (diagnóstico y autenticación)
+- `docs/AUTHENTICATION.md` — Estrategia de autenticación, JWT, Argon2id, roles y permisos
+- `docs/SECURITY.md` — Roles, permisos y controles de seguridad (actualizado)
+- `docs/TESTING.md` — Pruebas, comprobaciones de tipos, lint y formato (actualizado)
+- `docs/PHASE_3_REPORT.md` — Alcance ejecutado, verificaciones, limitaciones y pendientes
