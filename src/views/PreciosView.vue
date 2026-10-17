@@ -1,58 +1,79 @@
 <script setup lang="ts">
-import { useDemoStore } from '@/stores/demo';
+import { usePricingStore } from '@/stores/pricing';
 import PBtn from '@/components/PBtn.vue';
 import PBadge from '@/components/PBadge.vue';
+import PLoading from '@/components/PLoading.vue';
+import PEmptyState from '@/components/PEmptyState.vue';
 
-const store = useDemoStore();
+const store = usePricingStore();
+
+store.cargarProductos();
+store.cargarModalidades();
+
+const formatearMoneda = (centavos: number): string => {
+  const signo = centavos < 0 ? '-' : '';
+  const abs = Math.abs(centavos);
+  const major = Math.floor(abs / 100);
+  const minor = abs % 100;
+  return `${signo}${major}.${minor.toString().padStart(2, '0')}`;
+};
 </script>
 
 <template>
   <div class="precios">
     <header class="precios__header">
       <h1>Precios y modalidades</h1>
-      <p>Configuración de tarifas del menú (vista de demostración)</p>
+      <p>Configuración de tarifas del menú</p>
     </header>
 
-    <div class="precios__acciones">
-      <PBtn variant="primario" size="sm"> Agregar modalidad </PBtn>
+    <div v-if="store.cargando" class="precios__cargando">
+      <PLoading message="Cargando modalidades..." size="lg" />
     </div>
 
-    <div class="precios__grid">
-      <div v-for="modalidad in store.modalidades" :key="modalidad.id" class="precios__tarjeta">
-        <div class="precios__tarjeta-info">
-          <h3 class="precios__tarjeta-nombre">{{ modalidad.nombre }}</h3>
-          <p class="precios__tarjeta-descripcion">{{ modalidad.descripcion }}</p>
-          <div class="precios__tarjeta-opciones">
-            <span
-              v-for="opcion in modalidad.opcionesIncluidas"
-              :key="opcion"
-              class="precios__tarjeta-opcion"
-            >
-              ✓ {{ opcion }}
-            </span>
+    <div v-else-if="store.error" class="precios__error">
+      <PEmptyState
+        title="Error al cargar precios"
+        :subtitle="store.error"
+        icon="⚠️"
+      />
+    </div>
+
+    <div v-else class="precios__contenido">
+      <div class="precios__acciones">
+        <PBtn variant="primario" size="sm"> Agregar modalidad </PBtn>
+      </div>
+
+      <div class="precios__grid">
+        <div
+          v-for="modalidad in store.modalidades"
+          :key="modalidad.id"
+          class="precios__tarjeta"
+        >
+          <div class="precios__tarjeta-info">
+            <h3 class="precios__tarjeta-nombre">{{ modalidad.nombre }}</h3>
+            <p class="precios__tarjeta-descripcion">
+              {{ modalidad.descripcion || 'Sin descripción' }}
+            </p>
           </div>
-        </div>
-        <div class="precios__tarjeta-precio">
-          <div class="precios__tarjeta-valor">
-            {{ store.formatearMoneda(modalidad.precio) }}
+          <div class="precios__tarjeta-precio">
+            <div class="precios__tarjeta-valor">
+              {{ formatearMoneda(modalidad.precio_base_centavos) }}
+            </div>
+            <PBadge
+              :variant="modalidad.esta_activo ? 'disponible' : 'error'"
+              :label="modalidad.esta_activo ? 'Disponible' : 'No disponible'"
+            />
           </div>
-          <PBadge
-            :variant="modalidad.disponible ? 'disponible' : 'error'"
-            :label="modalidad.disponible ? 'Disponible' : 'No disponible'"
-          />
-        </div>
-        <div class="precios__tarjeta-acciones">
-          <PBtn variant="fantasma" size="sm">Editar</PBtn>
-          <PBtn variant="secundario" size="sm"> Duplicar </PBtn>
         </div>
       </div>
-    </div>
 
-    <div class="precios__nota">
-      <p>
-        Los datos mostrados son ficticios y solo forman parte del prototipo visual. El motor de
-        precios definitivo se implementará en la Fase 4.
-      </p>
+      <div v-if="store.modalidades.length === 0" class="precios__vacio">
+        <PEmptyState
+          title="No hay modalidades configuradas"
+          subtitle="Aún no se han creado modalidades de precios."
+          icon="🍽️"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -131,19 +152,6 @@ const store = useDemoStore();
   line-height: var(--line-height-relaxed);
 }
 
-.precios__tarjeta-opciones {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin-top: var(--space-2);
-}
-
-.precios__tarjeta-opcion {
-  font-size: var(--text-xs);
-  color: var(--color-success);
-  font-weight: var(--font-weight-medium);
-}
-
 .precios__tarjeta-precio {
   padding: var(--space-5);
   background-color: var(--color-bg-surface-alt);
@@ -167,17 +175,21 @@ const store = useDemoStore();
   border-top: var(--border-width) solid var(--color-border);
 }
 
-.precios__nota {
-  margin-top: var(--space-8);
-  padding: var(--space-5);
-  background-color: var(--color-info-light);
-  border: var(--border-width) solid var(--color-info);
-  border-radius: var(--radius-md);
+.precios__vacio {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-12);
 }
 
-.precios__nota p {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-info);
+.precios__cargando {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-12);
+}
+
+.precios__error {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-12);
 }
 </style>

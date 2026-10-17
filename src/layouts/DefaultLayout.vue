@@ -8,6 +8,8 @@ const itemsNav = [
   { nombre: 'dashboard', label: 'Mesas', ruta: '/' },
   { nombre: 'catalogo', label: 'Catálogo', ruta: '/catalogo' },
   { nombre: 'precios', label: 'Precios', ruta: '/precios' },
+  { nombre: 'precios-admin', label: 'Administrar Precios', ruta: '/precios/admin' },
+  { nombre: 'precios-cotizador', label: 'Cotizador', ruta: '/precios/cotizador' },
 ];
 
 const enlaceActivo = (nombre: string) => route.name === nombre;

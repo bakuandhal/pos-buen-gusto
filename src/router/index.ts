@@ -5,12 +5,16 @@ import CatalogoView from '@/views/CatalogoView.vue';
 import PreciosView from '@/views/PreciosView.vue';
 import CocinaView from '@/views/CocinaView.vue';
 import CajaView from '@/views/CajaView.vue';
+import AdministracionPreciosView from '@/views/AdministracionPreciosView.vue';
+import CotizadorPrecioView from '@/views/CotizadorPrecioView.vue';
 
 const routes = [
   { path: '/', name: 'dashboard', component: DashboardView },
   { path: '/mesas/:id', name: 'mesa-detalle', component: MesaDetailView },
   { path: '/catalogo', name: 'catalogo', component: CatalogoView },
   { path: '/precios', name: 'precios', component: PreciosView },
+  { path: '/precios/admin', name: 'precios-admin', component: AdministracionPreciosView },
+  { path: '/precios/cotizador', name: 'precios-cotizador', component: CotizadorPrecioView },
   { path: '/cocina', name: 'cocina', component: CocinaView },
   { path: '/caja', name: 'caja', component: CajaView },
 ];
