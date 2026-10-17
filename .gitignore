@@ -7,10 +7,24 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Environment files (no secretos en el repositorio)
+.env
+.env.local
+.env.*.local
+
+# Dependencies
 node_modules
+server/node_modules
+
+# Build outputs
 dist
 dist-ssr
+server/dist
 *.local
+
+# Tauri build artifacts
+src-tauri/target/
+src-tauri/gen/
 
 # Editor directories and files
 .vscode/*

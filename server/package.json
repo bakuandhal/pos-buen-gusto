@@ -1,0 +1,24 @@
+{
+  "name": "@pos-buen-gusto/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend mínimo de Fastify para POS Buen Gusto",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "dependencies": {
+    "fastify": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "~6.0.3",
+    "tsx": "^4.19.0",
+    "vitest": "^3.0.0"
+  }
+}
