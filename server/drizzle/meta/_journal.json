@@ -1,5 +1,5 @@
 {
-  "version": "8",
+  "version": "9",
   "dialect": "postgresql",
   "entries": [
     {
@@ -14,6 +14,13 @@
       "version": "8",
       "when": 1792262000000,
       "tag": "0001_tienda_pos_catalogo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "9",
+      "when": 1792262100000,
+      "tag": "0002_fase5_mesas_pedidos",
       "breakpoints": true
     }
   ]

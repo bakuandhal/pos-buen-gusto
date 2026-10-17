@@ -9,6 +9,7 @@ import {
   pgEnum,
   index,
   unique,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -314,10 +315,146 @@ export const adicionales = pgTable(
   })
 );
 
-// ── Relaciones ──
-export const rolesRelations = relations(roles, ({ many }) => ({
-  rolePermissions: many(rolePermissions),
-  users: many(users),
+// ── Tablas Fase 5: Mesas, Pedidos, Platos, Comandas ──
+export const mesas = pgTable(
+  'mesas',
+  {
+    id: serial('id').primaryKey(),
+    numero: integer('numero').notNull().unique(),
+    estado: varchar('estado', { length: 20 }).notNull().default('disponible'),
+    comensales: integer('comensales').notNull().default(0),
+    ultimaActualizacion: timestamp('ultima_actualizacion', { withTimezone: true }),
+    creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
+    actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    numeroIdx: index('mesas_numero_idx').on(table.numero),
+    estadoIdx: index('mesas_estado_idx').on(table.estado),
+  })
+);
+
+export const pedidos = pgTable(
+  'pedidos',
+  {
+    id: serial('id').primaryKey(),
+    mesaId: integer('mesa_id').references(() => mesas.id, { onDelete: 'set null' }),
+    tipoServicio: varchar('tipo_servicio', { length: 20 }).notNull().default('mesa'),
+    estado: varchar('estado', { length: 20 }).notNull().default('borrador'),
+    usuarioId: integer('usuario_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    totalCentavos: integer('total_centavos').notNull().default(0),
+    creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
+    actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    mesaIdIdx: index('pedidos_mesa_id_idx').on(table.mesaId),
+    estadoIdx: index('pedidos_estado_idx').on(table.estado),
+    usuarioIdIdx: index('pedidos_usuario_id_idx').on(table.usuarioId),
+  })
+);
+
+export const platosIndividuales = pgTable(
+  'platos_individuales',
+  {
+    id: serial('id').primaryKey(),
+    pedidoId: integer('pedido_id')
+      .notNull()
+      .references(() => pedidos.id, { onDelete: 'cascade' }),
+    productoId: integer('producto_id')
+      .notNull()
+      .references(() => productos.id, { onDelete: 'restrict' }),
+    modalidadId: integer('modalidad_id')
+      .notNull()
+      .references(() => modalidades.id, { onDelete: 'restrict' }),
+    cantidad: integer('cantidad').notNull().default(1),
+    precioUnitarioCentavos: integer('precio_unitario_centavos').notNull(),
+    subtotalCentavos: integer('subtotal_centavos').notNull(),
+    configuracion: jsonb('configuracion').notNull(),
+    revisionTarifaId: integer('revision_tarifa_id').references(() => revisionesTarifa.id, {
+      onDelete: 'restrict',
+    }),
+    estado: varchar('estado', { length: 20 }).notNull().default('borrador'),
+    creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
+    actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    pedidoIdIdx: index('platos_individuales_pedido_id_idx').on(table.pedidoId),
+    productoIdIdx: index('platos_individuales_producto_id_idx').on(table.productoId),
+    modalidadIdIdx: index('platos_individuales_modalidad_id_idx').on(table.modalidadId),
+    estadoIdx: index('platos_individuales_estado_idx').on(table.estado),
+  })
+);
+
+export const comandas = pgTable(
+  'comandas',
+  {
+    id: serial('id').primaryKey(),
+    pedidoId: integer('pedido_id')
+      .notNull()
+      .references(() => pedidos.id, { onDelete: 'cascade' }),
+    numeroComanda: integer('numero_comanda').notNull(),
+    estado: varchar('estado', { length: 20 }).notNull().default('borrador'),
+    usuarioId: integer('usuario_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
+    actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    pedidoIdIdx: index('comandas_pedido_id_idx').on(table.pedidoId),
+    numeroComandaIdx: index('comandas_numero_comanda_idx').on(table.numeroComanda),
+    estadoIdx: index('comandas_estado_idx').on(table.estado),
+    usuarioIdIdx: index('comandas_usuario_id_idx').on(table.usuarioId),
+  })
+);
+
+// ── Relaciones Fase 5 ──
+export const mesasRelations = relations(mesas, ({ many }) => ({
+  pedidos: many(pedidos),
+}));
+
+export const pedidosRelations = relations(pedidos, ({ one, many }) => ({
+  mesa: one(mesas, {
+    fields: [pedidos.mesaId],
+    references: [mesas.id],
+  }),
+  usuario: one(users, {
+    fields: [pedidos.usuarioId],
+    references: [users.id],
+  }),
+  platos: many(platosIndividuales),
+  comandas: many(comandas),
+}));
+
+export const platosIndividualesRelations = relations(platosIndividuales, ({ one }) => ({
+  pedido: one(pedidos, {
+    fields: [platosIndividuales.pedidoId],
+    references: [pedidos.id],
+  }),
+  producto: one(productos, {
+    fields: [platosIndividuales.productoId],
+    references: [productos.id],
+  }),
+  modalidad: one(modalidades, {
+    fields: [platosIndividuales.modalidadId],
+    references: [modalidades.id],
+  }),
+  revisionTarifa: one(revisionesTarifa, {
+    fields: [platosIndividuales.revisionTarifaId],
+    references: [revisionesTarifa.id],
+  }),
+}));
+
+export const comandasRelations = relations(comandas, ({ one }) => ({
+  pedido: one(pedidos, {
+    fields: [comandas.pedidoId],
+    references: [pedidos.id],
+  }),
+  usuario: one(users, {
+    fields: [comandas.usuarioId],
+    references: [users.id],
+  }),
 }));
 
 export const permissionsRelations = relations(permissions, ({ many }) => ({
