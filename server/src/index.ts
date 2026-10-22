@@ -1,8 +1,10 @@
 import { createApp } from './app';
 import { config } from './config';
+import { connectDb } from './db/connection';
 
 const env = config();
 
+await connectDb();
 const app = await createApp();
 
 const port = parseInt(env.PORT, 10);

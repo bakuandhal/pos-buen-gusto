@@ -47,9 +47,14 @@ export class PrecioValidacionError extends Error {
  * Motor de precios - Calcula el importe de un producto configurado
  * según las reglas de tarifa vigentes.
  */
-export async function cotizarPrecio(input: PricingQuoteRequest): Promise<PrecioDesglose> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = getDb() as any;
+export async function cotizarPrecio(
+  input: PricingQuoteRequest,
+  ejecutor?: unknown
+): Promise<PrecioDesglose> {
+  // Permite reutilizar la misma transacción que la operación de pedidos,
+  // de modo que la cotización y la persistencia vean la misma instantánea.
+
+  const db = (ejecutor ?? getDb()) as any;
   const detalles: Record<string, string>[] = [];
 
   // ── 1. Validar producto existe y está activo ──

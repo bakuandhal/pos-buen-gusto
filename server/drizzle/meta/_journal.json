@@ -1,26 +1,19 @@
 {
-  "version": "9",
+  "version": "7",
   "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
       "version": "7",
-      "when": 1792225030333,
-      "tag": "0000_flaky_speed_demon",
+      "when": 1792560298674,
+      "tag": "0000_lucky_northstar",
       "breakpoints": true
     },
     {
       "idx": 1,
-      "version": "8",
-      "when": 1792262000000,
-      "tag": "0001_tienda_pos_catalogo",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "9",
-      "when": 1792262100000,
-      "tag": "0002_fase5_mesas_pedidos",
+      "version": "7",
+      "when": 1792707762162,
+      "tag": "0001_jazzy_glorian",
       "breakpoints": true
     }
   ]

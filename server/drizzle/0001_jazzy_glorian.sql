@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "pedidos_mesa_abierta_unique" ON "pedidos" USING btree ("mesa_id") WHERE "pedidos"."estado" <> 'cancelado';

@@ -1,9 +1,7 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { config } from '../config';
+import { getDatabaseUrl } from '../config';
 import * as schema from './schema';
-
-const env = config();
 
 let pool: Pool | null = null;
 let dbInstance: ReturnType<typeof drizzle> | null = null;
@@ -20,8 +18,10 @@ export async function connectDb() {
     return dbInstance;
   }
 
+  const connectionString = getDatabaseUrl();
+
   try {
-    pool = new Pool({ connectionString: env.DATABASE_URL });
+    pool = new Pool({ connectionString });
     dbInstance = drizzle(pool, { schema });
 
     // Verificar conexión con una consulta simple

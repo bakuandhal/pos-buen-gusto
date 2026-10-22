@@ -4,28 +4,34 @@ import fastifyJwt from '@fastify/jwt';
 import { config } from './config';
 import { closeDb, connectDb, getDb, schema } from './db/connection';
 import { registerModules } from './modules';
+import { ErrorNegocio } from './shared/errors/dominio';
+import { IdempotenciaEnCursoError } from './utils/idempotency';
+import { PrecioValidacionError } from './modules/pricing/service';
 
 export async function createApp(): Promise<FastifyInstance> {
   const env = config();
 
   const app = Fastify({
-    logger: {
-      level: env.NODE_ENV === 'production' ? 'info' : 'debug',
-      serializers: {
-        // Nunca serializar contraseñas ni tokens en los logs
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        req: (request: any) => ({
-          method: request.method,
-          url: request.url,
-          hostname: request.hostname,
-          remoteAddress: request.socket?.remoteAddress,
-        }),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        res: (response: any) => ({
-          statusCode: response.statusCode,
-        }),
-      },
-    },
+    logger:
+      env.NODE_ENV === 'test'
+        ? false
+        : {
+            level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+            serializers: {
+              // Nunca serializar contraseñas ni tokens en los logs
+
+              req: (request: any) => ({
+                method: request.method,
+                url: request.url,
+                hostname: request.hostname,
+                remoteAddress: request.socket?.remoteAddress,
+              }),
+
+              res: (response: any) => ({
+                statusCode: response.statusCode,
+              }),
+            },
+          },
   });
 
   // CORS con orígenes explícitos
@@ -45,7 +51,7 @@ export async function createApp(): Promise<FastifyInstance> {
   });
 
   // Decorador para verificar autenticación (usado como preHandler)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   app.decorate('authenticate', async (_request: any, _reply: any) => {
     try {
       await _request.jwtVerify();
@@ -57,10 +63,21 @@ export async function createApp(): Promise<FastifyInstance> {
     }
   });
 
-  // Decorador para verificar permisos específicos
-  app.decorate('requirePermission', (requiredAction: string) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (request: any, reply: any) => {
+  // Decorador para verificar permisos específicos.
+  // Primero valida el token (para poblar `request.user`) y luego comprueba
+  // que el usuario tenga el permiso requerido.
+  app.decorate(
+    'requirePermission',
+    (requiredAction: string) => async (request: any, reply: any) => {
+      try {
+        await request.jwtVerify();
+      } catch {
+        return reply.status(401).send({
+          error: 'no_autorizado',
+          message: 'Token de acceso inválido o expirado',
+        });
+      }
+
       const user = request.user as
         | {
             id: number;
@@ -86,7 +103,7 @@ export async function createApp(): Promise<FastifyInstance> {
   );
 
   // Registro de auditoría en cada solicitud (sin datos sensibles)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   app.addHook('onRequest', async (_request: any, _reply: any) => {
     _request.log.debug({
       method: _request.method,
@@ -95,8 +112,34 @@ export async function createApp(): Promise<FastifyInstance> {
   });
 
   // Manejo global de errores
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   app.setErrorHandler((error: any, request: any, reply: any) => {
+    // Errores de dominio: se devuelven con su código HTTP y mensaje útil.
+    if (error instanceof ErrorNegocio) {
+      return reply.status(error.statusCode).send({
+        error: error.codigo,
+        message: error.message,
+        ...(error.detalles.length > 0 ? { detalles: error.detalles } : {}),
+      });
+    }
+
+    // Error de idempotencia: la operación previa está en curso.
+    if (error instanceof IdempotenciaEnCursoError) {
+      return reply.status(409).send({
+        error: 'operacion_en_curso',
+        message: error.message,
+      });
+    }
+
+    // Error de validación del motor de precios.
+    if (error instanceof PrecioValidacionError) {
+      return reply.status(400).send({
+        error: error.codigo,
+        message: error.message,
+        ...(error.detalles.length > 0 ? { detalles: error.detalles } : {}),
+      });
+    }
+
     request.log.error(error);
 
     // Nunca exponer detalles internos al cliente
@@ -124,7 +167,7 @@ export async function createApp(): Promise<FastifyInstance> {
   });
 
   // Endpoint de disponibilidad: verifica dependencias esenciales (base de datos)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   app.get('/ready', async (_request: any, reply: any) => {
     try {
       await connectDb();

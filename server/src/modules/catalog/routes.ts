@@ -54,7 +54,6 @@ import {
 } from './service';
 
 export async function catalogRoutes(app: FastifyInstance) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const requireAdmin = (app as any).requirePermission('configurar_precios');
 
   // ── Productos ──

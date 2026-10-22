@@ -87,15 +87,7 @@ export async function authRoutes(app: FastifyInstance) {
     // Revocar el token viejo y crear uno nuevo (rotación)
     await revokeRefreshToken(hashToken(refreshToken));
 
-    const tokens = await createTokens(
-      app,
-      user.id,
-      user.username,
-      user.role.name,
-      user.role.rolePermissions.map(
-        (rp: { permission: { action: string } }) => rp.permission.action
-      )
-    );
+    const tokens = await createTokens(app, user.id, user.username, user.role, user.permissions);
 
     return tokens;
   });
@@ -131,7 +123,8 @@ export async function authRoutes(app: FastifyInstance) {
     }
 
     const user = request.user as {
-      id: number;
+      id?: number;
+      userId?: number;
       username: string;
       role: string;
       permissions: string[];
@@ -139,7 +132,7 @@ export async function authRoutes(app: FastifyInstance) {
 
     return {
       user: {
-        id: user.id,
+        id: user.userId ?? user.id,
         username: user.username,
         email: '',
         fullName: '',

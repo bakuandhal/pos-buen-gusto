@@ -18,13 +18,11 @@ import type {
 
 // ── Productos ──
 export async function listarProductos() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   return await db.select().from(schema.productos).orderBy(schema.productos.ordenPresentacion);
 }
 
 export async function obtenerProducto(id: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [producto] = await db
     .select()
@@ -35,7 +33,6 @@ export async function obtenerProducto(id: number) {
 }
 
 export async function crearProducto(input: ProductoCreateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [producto] = await db
     .insert(schema.productos)
@@ -49,7 +46,6 @@ export async function crearProducto(input: ProductoCreateInput) {
 }
 
 export async function actualizarProducto(id: number, input: ProductoUpdateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [producto] = await db
     .update(schema.productos)
@@ -66,7 +62,6 @@ export async function actualizarProducto(id: number, input: ProductoUpdateInput)
 }
 
 export async function desactivarProducto(id: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [producto] = await db
     .update(schema.productos)
@@ -78,7 +73,6 @@ export async function desactivarProducto(id: number) {
 
 // ── Modalidades ──
 export async function listarModalidades(productoId?: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   if (productoId) {
     return await db
@@ -90,7 +84,6 @@ export async function listarModalidades(productoId?: number) {
 }
 
 export async function obtenerModalidad(id: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [modalidad] = await db
     .select()
@@ -101,7 +94,6 @@ export async function obtenerModalidad(id: number) {
 }
 
 export async function crearModalidad(input: ModalidadCreateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [modalidad] = await db
     .insert(schema.modalidades)
@@ -119,7 +111,6 @@ export async function crearModalidad(input: ModalidadCreateInput) {
 }
 
 export async function actualizarModalidad(id: number, input: ModalidadUpdateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [modalidad] = await db
     .update(schema.modalidades)
@@ -146,7 +137,6 @@ export async function actualizarModalidad(id: number, input: ModalidadUpdateInpu
 
 // ── Grupos de Opciones ──
 export async function listarGruposOpciones(productoId?: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   if (productoId) {
     return await db
@@ -158,7 +148,6 @@ export async function listarGruposOpciones(productoId?: number) {
 }
 
 export async function crearGrupoOpciones(input: GrupoOpcionesCreateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [grupo] = await db
     .insert(schema.gruposOpciones)
@@ -176,7 +165,6 @@ export async function crearGrupoOpciones(input: GrupoOpcionesCreateInput) {
 }
 
 export async function actualizarGrupoOpciones(id: number, input: GrupoOpcionesUpdateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [grupo] = await db
     .update(schema.gruposOpciones)
@@ -199,7 +187,6 @@ export async function actualizarGrupoOpciones(id: number, input: GrupoOpcionesUp
 
 // ── Opciones ──
 export async function listarOpciones(grupoId?: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   if (grupoId) {
     return await db.select().from(schema.opciones).where(eq(schema.opciones.grupoId, grupoId));
@@ -208,7 +195,6 @@ export async function listarOpciones(grupoId?: number) {
 }
 
 export async function crearOpcion(input: OpcionCreateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [opcion] = await db
     .insert(schema.opciones)
@@ -223,7 +209,6 @@ export async function crearOpcion(input: OpcionCreateInput) {
 }
 
 export async function actualizarOpcion(id: number, input: OpcionUpdateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [opcion] = await db
     .update(schema.opciones)
@@ -241,7 +226,6 @@ export async function actualizarOpcion(id: number, input: OpcionUpdateInput) {
 
 // ── Opciones Incluidas en Modalidad ──
 export async function agregarOpcionIncluida(input: OpcionIncluidaCreateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [incluida] = await db
     .insert(schema.opcionesIncluidasModalidad)
@@ -254,7 +238,6 @@ export async function agregarOpcionIncluida(input: OpcionIncluidaCreateInput) {
 }
 
 export async function listarOpcionesIncluidas(modalidadId: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   return await db
     .select()
@@ -264,7 +247,6 @@ export async function listarOpcionesIncluidas(modalidadId: number) {
 
 // ── Sustituciones ──
 export async function crearSustitucion(input: SustitucionCreateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [sustitucion] = await db
     .insert(schema.sustituciones)
@@ -279,7 +261,6 @@ export async function crearSustitucion(input: SustitucionCreateInput) {
 }
 
 export async function listarSustituciones(modalidadId: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   return await db
     .select()
@@ -288,7 +269,6 @@ export async function listarSustituciones(modalidadId: number) {
 }
 
 export async function actualizarSustitucion(id: number, input: SustitucionUpdateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [sustitucion] = await db
     .update(schema.sustituciones)
@@ -306,7 +286,6 @@ export async function actualizarSustitucion(id: number, input: SustitucionUpdate
 
 // ── Adicionales ──
 export async function listarAdicionales(productoId?: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   if (productoId) {
     return await db
@@ -318,7 +297,6 @@ export async function listarAdicionales(productoId?: number) {
 }
 
 export async function crearAdicional(input: AdicionalCreateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [adicional] = await db
     .insert(schema.adicionales)
@@ -334,7 +312,6 @@ export async function crearAdicional(input: AdicionalCreateInput) {
 }
 
 export async function actualizarAdicional(id: number, input: AdicionalUpdateInput) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   const [adicional] = await db
     .update(schema.adicionales)

@@ -1,6 +1,5 @@
 import { hash, verify } from 'argon2';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ARGON2_OPTS: any = {
   memoryCost: 65536,
   timeCost: 3,

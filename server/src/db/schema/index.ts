@@ -9,9 +9,10 @@ import {
   pgEnum,
   index,
   unique,
+  uniqueIndex,
   jsonb,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 // ── Enumeraciones ──
 export const userRoleEnum = pgEnum('user_role', ['administrador', 'mesero', 'caja']);
@@ -344,6 +345,8 @@ export const pedidos = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'restrict' }),
     totalCentavos: integer('total_centavos').notNull().default(0),
+    // Control de concurrencia optimista: se incrementa en cada modificación.
+    version: integer('version').notNull().default(1),
     creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
     actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -351,6 +354,12 @@ export const pedidos = pgTable(
     mesaIdIdx: index('pedidos_mesa_id_idx').on(table.mesaId),
     estadoIdx: index('pedidos_estado_idx').on(table.estado),
     usuarioIdIdx: index('pedidos_usuario_id_idx').on(table.usuarioId),
+    // Una mesa solo puede tener un pedido no cancelado a la vez.
+    // Es una garantía a nivel de base de datos, además del bloqueo
+    // transaccional de la aplicación.
+    mesaAbiertaUnica: uniqueIndex('pedidos_mesa_abierta_unique')
+      .on(table.mesaId)
+      .where(sql`${table.estado} <> 'cancelado'`),
   })
 );
 
@@ -398,6 +407,9 @@ export const comandas = pgTable(
     usuarioId: integer('usuario_id')
       .notNull()
       .references(() => users.id, { onDelete: 'restrict' }),
+    // Instantánea legible de los platos incluidos en el momento del envío.
+    // Permite imprimir (Fase 6) sin reconstruir ni recalcular el pedido.
+    platosSnapshot: jsonb('platos_snapshot'),
     creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
     actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -406,6 +418,29 @@ export const comandas = pgTable(
     numeroComandaIdx: index('comandas_numero_comanda_idx').on(table.numeroComanda),
     estadoIdx: index('comandas_estado_idx').on(table.estado),
     usuarioIdIdx: index('comandas_usuario_id_idx').on(table.usuarioId),
+    uniquePedidoNumero: unique('comandas_pedido_id_numero_comanda_unique').on(
+      table.pedidoId,
+      table.numeroComanda
+    ),
+  })
+);
+
+// ── Idempotencia de operaciones ──
+export const operacionesIdempotentes = pgTable(
+  'operaciones_idempotentes',
+  {
+    id: serial('id').primaryKey(),
+    clave: varchar('clave', { length: 200 }).notNull(),
+    operacion: varchar('operacion', { length: 100 }).notNull(),
+    resultado: jsonb('resultado'),
+    creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    uniqueClaveOperacion: unique('operaciones_idempotentes_clave_operacion_unique').on(
+      table.clave,
+      table.operacion
+    ),
+    claveIdx: index('operaciones_idempotentes_clave_idx').on(table.clave),
   })
 );
 

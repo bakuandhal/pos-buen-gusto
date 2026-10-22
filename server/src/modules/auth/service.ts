@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../../db/connection';
 import { comparePassword } from '../../utils/password';
 import { generateRefreshToken, hashToken } from '../../utils/auth';
@@ -17,7 +17,6 @@ export async function authenticateUser(
   username: string,
   password: string
 ): Promise<AuthUser | null> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
 
   const [user] = await db
@@ -51,20 +50,18 @@ export async function authenticateUser(
     .from(schema.rolePermissions)
     .where(eq(schema.rolePermissions.roleId, role.id));
 
-  const permissionIds = rolePermissions.map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (rp: any) => rp.permissionId
-  );
+  const permissionIds = rolePermissions.map((rp: any) => rp.permissionId);
 
-  const permissions = await db
-    .select()
-    .from(schema.permissions)
-    .where(eq(schema.permissions.id, permissionIds[0]));
+  // Cargar TODOS los permisos del rol, no solo el primero.
+  const permissions =
+    permissionIds.length > 0
+      ? await db
+          .select()
+          .from(schema.permissions)
+          .where(inArray(schema.permissions.id, permissionIds))
+      : [];
 
-  const permissionActions = permissions.map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (p: any) => p.action
-  );
+  const permissionActions = permissions.map((p: any) => p.action);
 
   return {
     userId: user.id,
@@ -98,7 +95,6 @@ export async function createTokens(
     Date.now() + parseExpiryMs(config().JWT_REFRESH_TOKEN_EXPIRY)
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   await db.insert(schema.refreshTokens).values({
     userId,
@@ -116,7 +112,7 @@ export async function createTokens(
 
 export async function verifyRefreshToken(refreshToken: string): Promise<{ userId: number } | null> {
   const tokenHash = hashToken(refreshToken);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const db = getDb() as any;
 
   const [token] = await db
@@ -126,6 +122,10 @@ export async function verifyRefreshToken(refreshToken: string): Promise<{ userId
     .limit(1);
 
   if (!token) {
+    return null;
+  }
+
+  if (token.revokedAt) {
     return null;
   }
 
@@ -148,7 +148,6 @@ export async function verifyRefreshToken(refreshToken: string): Promise<{ userId
 }
 
 export async function revokeRefreshToken(tokenHash: string): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   await db
     .update(schema.refreshTokens)
@@ -157,7 +156,6 @@ export async function revokeRefreshToken(tokenHash: string): Promise<void> {
 }
 
 export async function revokeAllUserRefreshTokens(userId: number): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
   await db
     .update(schema.refreshTokens)
@@ -166,7 +164,6 @@ export async function revokeAllUserRefreshTokens(userId: number): Promise<void> 
 }
 
 export async function getUserById(userId: number) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = getDb() as any;
 
   const [user] = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
@@ -184,23 +181,20 @@ export async function getUserById(userId: number) {
     .from(schema.rolePermissions)
     .where(eq(schema.rolePermissions.roleId, role.id));
 
-  const permissionIds = rolePermissions.map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (rp: any) => rp.permissionId
-  );
+  const permissionIds = rolePermissions.map((rp: any) => rp.permissionId);
 
-  const permissions = await db
-    .select()
-    .from(schema.permissions)
-    .where(eq(schema.permissions.id, permissionIds[0]));
+  const permissions =
+    permissionIds.length > 0
+      ? await db
+          .select()
+          .from(schema.permissions)
+          .where(inArray(schema.permissions.id, permissionIds))
+      : [];
 
   return {
     ...user,
     role: role?.name || '',
-    permissions: permissions.map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p: any) => p.action
-    ),
+    permissions: permissions.map((p: any) => p.action),
   };
 }
 
