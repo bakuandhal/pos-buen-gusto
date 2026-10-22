@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// @ts-nocheck
 /* eslint-disable */
+// @ts-nocheck
 import { ref } from 'vue';
 import { usePricingStore } from '@/stores/pricing';
 import PBtn from '@/components/PBtn.vue';
@@ -41,21 +41,19 @@ function cerrarModalProducto() {
   modalProductoAbierta.value = false;
 }
 
-  async function guardarProducto() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await store.crearNuevoProducto({
-        nombre: productoForm.value.nombre,
-        descripcion: productoForm.value.descripcion,
-        ordenPresentacion: productoForm.value.ordenPresentacion,
-      });
-      cerrarModalProducto();
-      store.cargarProductos();
-    } catch (e: any) {
-      // El error ya se maneja en el store
-    }
+async function guardarProducto() {
+  try {
+    await store.crearNuevoProducto({
+      nombre: productoForm.value.nombre,
+      descripcion: productoForm.value.descripcion,
+      ordenPresentacion: productoForm.value.ordenPresentacion,
+    });
+    cerrarModalProducto();
+    store.cargarProductos();
+  } catch (e: any) {
+    // El error ya se maneja en el store
   }
+}
 
 function abrirModalModalidad(productoId: any) {
   modalidadForm.value = {
@@ -72,25 +70,23 @@ function cerrarModalModalidad() {
   modalModalidadAbierta.value = false;
 }
 
-  async function guardarModalidad() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await store.crearNuevaModalidad({
-        productoId: Number(modalidadForm.value.productoId),
-        nombre: modalidadForm.value.nombre,
-        descripcion: modalidadForm.value.descripcion,
-        precioBaseCentavos: modalidadForm.value.precioBaseCentavos,
-        incluyeSopa: modalidadForm.value.incluyeSopa,
-      });
-      cerrarModalModalidad();
-      store.cargarModalidades();
-    } catch (e: any) {
-      // El error ya se maneja en el store
-    }
+async function guardarModalidad() {
+  try {
+    await store.crearNuevaModalidad({
+      productoId: Number(modalidadForm.value.productoId),
+      nombre: modalidadForm.value.nombre,
+      descripcion: modalidadForm.value.descripcion,
+      precioBaseCentavos: modalidadForm.value.precioBaseCentavos,
+      incluyeSopa: modalidadForm.value.incluyeSopa,
+    });
+    cerrarModalModalidad();
+    store.cargarModalidades();
+  } catch (e: any) {
+    // El error ya se maneja en el store
   }
+}
 
-  const formatearMoneda = (centavos: number): string => {
+const formatearMoneda = (centavos: number): string => {
   const signo = centavos < 0 ? '-' : '';
   const abs = Math.abs(centavos);
   const major = Math.floor(abs / 100);
@@ -107,12 +103,8 @@ function cerrarModalModalidad() {
     </header>
 
     <div class="admin-precios__acciones">
-      <PBtn variant="primario" size="sm" @click="abrirModalProducto">
-        Agregar producto
-      </PBtn>
-      <PBtn variant="secundario" size="sm" @click="store.cargarProductos">
-        Refrescar
-      </PBtn>
+      <PBtn variant="primario" size="sm" @click="abrirModalProducto"> Agregar producto </PBtn>
+      <PBtn variant="secundario" size="sm" @click="store.cargarProductos"> Refrescar </PBtn>
     </div>
 
     <div v-if="store.cargando" class="admin-precios__cargando">
@@ -120,11 +112,7 @@ function cerrarModalModalidad() {
     </div>
 
     <div v-else-if="store.error" class="admin-precios__error">
-      <PEmptyState
-        title="Error al cargar productos"
-        :subtitle="store.error"
-        icon="⚠️"
-      />
+      <PEmptyState title="Error al cargar productos" :subtitle="store.error" icon="⚠️" />
     </div>
 
     <div v-else class="admin-precios__contenido">
@@ -153,11 +141,7 @@ function cerrarModalModalidad() {
             </p>
           </div>
           <div class="admin-precios__tarjeta-acciones">
-            <PBtn
-              variant="fantasma"
-              size="sm"
-              @click="abrirModalModalidad(producto.id)"
-            >
+            <PBtn variant="fantasma" size="sm" @click="abrirModalModalidad(producto.id)">
               Agregar modalidad
             </PBtn>
             <PBtn variant="secundario" size="sm">Editar</PBtn>
@@ -166,7 +150,7 @@ function cerrarModalModalidad() {
           <div class="admin-precios__modalidades">
             <h4 class="admin-precios__modalidades-titulo">Modalidades</h4>
             <div
-              v-for="modalidad in store.modalidades.filter(m => m.producto_id === producto.id)"
+              v-for="modalidad in store.modalidades.filter((m) => m.producto_id === producto.id)"
               :key="modalidad.id"
               class="admin-precios__modalidad-item"
             >
@@ -208,12 +192,8 @@ function cerrarModalModalidad() {
           v-model.number="productoForm.ordenPresentacion"
         />
         <div class="modal-formulario__acciones">
-          <PBtn variant="secundario" size="sm" @click="cerrarModalProducto">
-            Cancelar
-          </PBtn>
-          <PBtn variant="primario" size="sm" @click="guardarProducto">
-            Guardar producto
-          </PBtn>
+          <PBtn variant="secundario" size="sm" @click="cerrarModalProducto"> Cancelar </PBtn>
+          <PBtn variant="primario" size="sm" @click="guardarProducto"> Guardar producto </PBtn>
         </div>
       </div>
     </PModal>
@@ -248,12 +228,8 @@ function cerrarModalModalidad() {
           />
         </div>
         <div class="modal-formulario__acciones">
-          <PBtn variant="secundario" size="sm" @click="cerrarModalModalidad">
-            Cancelar
-          </PBtn>
-          <PBtn variant="primario" size="sm" @click="guardarModalidad">
-            Guardar modalidad
-          </PBtn>
+          <PBtn variant="secundario" size="sm" @click="cerrarModalModalidad"> Cancelar </PBtn>
+          <PBtn variant="primario" size="sm" @click="guardarModalidad"> Guardar modalidad </PBtn>
         </div>
       </div>
     </PModal>

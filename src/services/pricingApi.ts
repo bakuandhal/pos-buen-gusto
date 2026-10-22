@@ -252,7 +252,10 @@ export async function listarOpcionesIncluidas(modalidadId: number): Promise<Opci
   return request(`/api/v1/catalog/modalidades/${modalidadId}/opciones-incluidas`);
 }
 
-export async function agregarOpcionIncluida(modalidadId: number, opcionId: number): Promise<OpcionIncluida> {
+export async function agregarOpcionIncluida(
+  modalidadId: number,
+  opcionId: number
+): Promise<OpcionIncluida> {
   return request(`/api/v1/catalog/modalidades/${modalidadId}/opciones-incluidas`, {
     method: 'POST',
     body: JSON.stringify({ modalidadId, opcionId }),

@@ -31,11 +31,7 @@ const formatearMoneda = (centavos: number): string => {
     </div>
 
     <div v-else-if="store.error" class="precios__error">
-      <PEmptyState
-        title="Error al cargar precios"
-        :subtitle="store.error"
-        icon="⚠️"
-      />
+      <PEmptyState title="Error al cargar precios" :subtitle="store.error" icon="⚠️" />
     </div>
 
     <div v-else class="precios__contenido">
@@ -44,11 +40,7 @@ const formatearMoneda = (centavos: number): string => {
       </div>
 
       <div class="precios__grid">
-        <div
-          v-for="modalidad in store.modalidades"
-          :key="modalidad.id"
-          class="precios__tarjeta"
-        >
+        <div v-for="modalidad in store.modalidades" :key="modalidad.id" class="precios__tarjeta">
           <div class="precios__tarjeta-info">
             <h3 class="precios__tarjeta-nombre">{{ modalidad.nombre }}</h3>
             <p class="precios__tarjeta-descripcion">

@@ -51,7 +51,6 @@ export const usePricingStore = defineStore('pricing', () => {
     error.value = null;
     try {
       productos.value = await listarProductos();
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al cargar productos';
     } finally {
@@ -64,7 +63,6 @@ export const usePricingStore = defineStore('pricing', () => {
     error.value = null;
     try {
       modalidades.value = await listarModalidades(productoId);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al cargar modalidades';
     } finally {
@@ -77,7 +75,6 @@ export const usePricingStore = defineStore('pricing', () => {
     error.value = null;
     try {
       gruposOpciones.value = await listarGruposOpciones(productoId);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al cargar grupos de opciones';
     } finally {
@@ -90,7 +87,6 @@ export const usePricingStore = defineStore('pricing', () => {
     error.value = null;
     try {
       opciones.value = await listarOpciones(grupoId);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al cargar opciones';
     } finally {
@@ -103,7 +99,6 @@ export const usePricingStore = defineStore('pricing', () => {
     error.value = null;
     try {
       adicionales.value = await listarAdicionales(productoId);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al cargar adicionales';
     } finally {
@@ -111,14 +106,17 @@ export const usePricingStore = defineStore('pricing', () => {
     }
   }
 
-  async function crearNuevoProducto(data: { nombre: string; descripcion?: string; ordenPresentacion?: number }) {
+  async function crearNuevoProducto(data: {
+    nombre: string;
+    descripcion?: string;
+    ordenPresentacion?: number;
+  }) {
     cargando.value = true;
     error.value = null;
     try {
       const producto = await crearProducto(data);
       productos.value.push(producto);
       return producto;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al crear producto';
       throw e;
@@ -140,7 +138,6 @@ export const usePricingStore = defineStore('pricing', () => {
       const modalidad = await crearModalidad(data);
       modalidades.value.push(modalidad);
       return modalidad;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al crear modalidad';
       throw e;
@@ -164,7 +161,6 @@ export const usePricingStore = defineStore('pricing', () => {
       const grupo = await crearGrupoOpciones(data);
       gruposOpciones.value.push(grupo);
       return grupo;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al crear grupo de opciones';
       throw e;
@@ -185,7 +181,6 @@ export const usePricingStore = defineStore('pricing', () => {
       const opcion = await crearOpcion(data);
       opciones.value.push(opcion);
       return opcion;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al crear opción';
       throw e;
@@ -206,7 +201,6 @@ export const usePricingStore = defineStore('pricing', () => {
       const sustitucion = await crearSustitucion(data);
       sustituciones.value.push(sustitucion);
       return sustitucion;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al crear sustitución';
       throw e;
@@ -228,7 +222,6 @@ export const usePricingStore = defineStore('pricing', () => {
       const adicional = await crearAdicional(data);
       adicionales.value.push(adicional);
       return adicional;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al crear adicional';
       throw e;
@@ -244,7 +237,6 @@ export const usePricingStore = defineStore('pricing', () => {
       const resultado = await cotizarPrecio(data);
       cotizacion.value = resultado;
       return resultado;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al cotizar precio';
       cotizacion.value = null;
@@ -259,7 +251,6 @@ export const usePricingStore = defineStore('pricing', () => {
     error.value = null;
     try {
       opcionesIncluidas.value = await listarOpcionesIncluidas(modalidadId);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al cargar opciones incluidas';
     } finally {
@@ -272,7 +263,6 @@ export const usePricingStore = defineStore('pricing', () => {
     error.value = null;
     try {
       sustituciones.value = await listarSustituciones(modalidadId);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       error.value = e.message || 'Error al cargar sustituciones';
     } finally {

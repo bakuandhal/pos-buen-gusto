@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// @ts-nocheck
 /* eslint-disable */
+// @ts-nocheck
 import { ref, computed } from 'vue';
 import { usePricingStore } from '@/stores/pricing';
 import PBtn from '@/components/PBtn.vue';
@@ -11,7 +11,9 @@ const store = usePricingStore();
 const productoSeleccionado = ref('');
 const modalidadSeleccionada = ref('');
 const opcionesSeleccionadas = ref<number[]>([]);
-const sustitucionesSeleccionadas = ref<{ opcionOriginalId: number; opcionSustitutaId: number }[]>([]);
+const sustitucionesSeleccionadas = ref<{ opcionOriginalId: number; opcionSustitutaId: number }[]>(
+  []
+);
 const adicionalesSeleccionados = ref<{ adicionalId: number; cantidad: number }[]>([]);
 
 const cotizacionAbierta = ref(false);
@@ -114,11 +116,7 @@ const formatearMoneda = (centavos: number): string => {
           "
         >
           <option value="">Seleccionar producto</option>
-          <option
-            v-for="producto in productosDisponibles"
-            :key="producto.id"
-            :value="producto.id"
-          >
+          <option v-for="producto in productosDisponibles" :key="producto.id" :value="producto.id">
             {{ producto.nombre }}
           </option>
         </select>
@@ -190,9 +188,8 @@ const formatearMoneda = (centavos: number): string => {
               </button>
               <span class="cotizador__adicional-cantidad">
                 {{
-                  adicionalesSeleccionados.value.find(
-                    (a: any) => a.adicionalId === adicional.id
-                  )?.cantidad || 0
+                  adicionalesSeleccionados.value.find((a: any) => a.adicionalId === adicional.id)
+                    ?.cantidad || 0
                 }}
               </span>
               <button
@@ -225,8 +222,7 @@ const formatearMoneda = (centavos: number): string => {
         :subtotal="store.cotizacion.precioBaseCentavos"
         :total="store.cotizacion.totalCentavos"
         :items="
-          store.cotizacion.adicionales.length +
-          store.cotizacion.sustitucionesAplicadas.length
+          store.cotizacion.adicionales.length + store.cotizacion.sustitucionesAplicadas.length
         "
       />
       <div class="cotizador__desglose">

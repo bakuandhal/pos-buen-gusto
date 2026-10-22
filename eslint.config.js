@@ -21,6 +21,12 @@ export default [
     },
   },
   {
+    files: ["server/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
     files: ["**/*.vue"],
     languageOptions: {
       parser: vueParser,
